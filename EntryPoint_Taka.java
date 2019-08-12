@@ -38,11 +38,15 @@ public class EntryPoint extends JFrame implements ActionListener {
 	private JButton button_13;
 	private JButton button_14;
 
-	// aは最初のに入力した数
-	// bは次に入力した数
+	
+
 	// 明示的に修飾詞(private)を付加しましょう。
-	private int a, b, c, x; // これはリテラル
-	private String d; // Java特有ですが文字列はリテラルではなくクラス（特殊クラス）です。
+	private int a;			// 最初のに入力した数
+	private int b;			// 次に入力した数
+//	private int c;			// 答えの数値ですが、フィールドにする必要がなくなったのでブロック内の変数に移行しました、変数名はoutputResult()内のanswerValueです。
+	private int x;			// FIXME:演算処理の値ですが今度の授業、またはその後で列挙体の勉強として置いておきます。
+//	private String d; 		// 答えの文字列ですが、フィールドにする必要がなくなったのでブロック内の変数に移行しました、変数名はoutputResult()内のanswerTextです。
+
 
 	// ================== Constructs =====================
 
@@ -68,6 +72,34 @@ public class EntryPoint extends JFrame implements ActionListener {
 		createButtons();
 	}
 
+	
+	// ================== Events =====================
+
+	/**
+	 * ボタンクリックイベントです。
+	 * 最上位階層（大項目）での長文コードは可読性が悪くなったりするので
+	 * 詳細な動きは次階層（中項目）やさらに下の階層（小項目）で行うのも一つのやり方です。
+	 * ただし前にも言いましたが、メソッド化を多用し階層を深くすると逆に可読性が悪くなり目で追うのがしんどくなるので注意してください。
+	 */
+	@Override
+	public void actionPerformed(ActionEvent e) {
+
+		JButton btn = (JButton) e.getSource();
+		String btnTxt = btn.getText();
+		
+		if (checkNumeric(btnTxt)) {
+			
+			// 入力値は数字だったので処理は完了です。
+			return;
+		}
+		
+		// -------- ここからは機能ボタンしか到達しません。 --------------
+		System.out.println("機能ボタンが押されました。");
+		
+		command(btnTxt);
+	}
+
+	
 	// ================== Methods ================================
 
 	/**
@@ -96,8 +128,6 @@ public class EntryPoint extends JFrame implements ActionListener {
 	 * 共通化するための関数化ではありませんが役割を独立させるためにメソッド化する方法もあります。
 	 */
 	private void createButtons() {
-
-		// 20190808_今回の共通化でDesignにボタンはなくなり、論理ボタンになります。
 		
 		// ---------- 数字ボタン ----------------
 		JButton[] btns = new JButton[] { 
@@ -120,24 +150,24 @@ public class EntryPoint extends JFrame implements ActionListener {
 			btn = new JButton(btnTxt);
 			btn.addActionListener((ActionListener) this);
 			
-			String txt = "cell";
+			String text = "cell";
 			if (i == 0) {
 				
-				txt += btnTxt + " 4";
+				text += btnTxt + " 4";
 				
 			} else if (i < 4) {
 
-				txt += String.valueOf(i - 1) + " 3";
+				text += String.valueOf(i - 1) + " 3";
 				
 			} else if (i < 7) {
 				
-				txt += String.valueOf(i - 4) + " 2";
+				text += String.valueOf(i - 4) + " 2";
 				
 			} else {	// i < 9 と同義です。
 				
-				txt += String.valueOf(i - 7) + " 1";
+				text += String.valueOf(i - 7) + " 1";
 			}
-			contentPane.add(btn, txt);				
+			contentPane.add(btn, text);				
 		}
 
 		// ---------- 機能ボタン ----------------
@@ -167,22 +197,23 @@ public class EntryPoint extends JFrame implements ActionListener {
 			btn.addActionListener((ActionListener) this);
 
 			// txtはスコープが違うので再利用にはなりません。
-			String txt = "cell 3 " + String.valueOf(i);
-			contentPane.add(btn, txt);	
+			String text = "cell 3 " + String.valueOf(i);
+			contentPane.add(btn, text);	
 		}
 	}
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
 
-		JButton btn = (JButton) e.getSource();
-		String btnTxt = btn.getText();
+	/**
+	 * 引数が数字であれば数字入力処理を行います。
+	 * @param btnTxt
+	 * @return false:数字でない場合の戻り値です。
+	 */
+	private boolean checkNumeric(String btnTxt) {
 		
 		try {
 			Integer.parseInt(btnTxt);	// 数字でないと例外をスローします。
 			textField.setText(textField.getText() + btnTxt);
-			// 数字ボタンはここまでです、ここでreturnすることで機能ボタンのロジックのネストが１階層浅くできます。
-			return;
+			return true;
 
 		} catch (NumberFormatException ex) {
 
@@ -190,84 +221,105 @@ public class EntryPoint extends JFrame implements ActionListener {
 			 * 数字ではないので機能ボタンであることは判明します。
 			 * このように数字であるかを確認せず例外で振り分ける方法もあります。
 			 */
+			return false;
 		}
-		
-		// -------- ここからは機能ボタンしか到達しません。 --------------
-		System.out.println("機能ボタンが押されました。");
+	}
+
+	/**
+	 * 数字入力以外の処理を行います。
+	 * @param btnTxt
+	 */
+	private void command(String btnTxt) {
 		
 		try {
 			switch (btnTxt) {
 			case "*":
 				a = Integer.parseInt(textField.getText());
 				x = 3;
-				textField.setText("");
 				break;
 				
 			case "/":
 				a = Integer.parseInt(textField.getText());
 				x = 4;
-				textField.setText("");
 				break;
 				
 			case "-":
 				a = Integer.parseInt(textField.getText());
 				x = 1;
-				// textField内をなにも書かれていない状態にする
-				textField.setText("");
 			
 			case "+":
 				a = Integer.parseInt(textField.getText());
 				x = 2;
-				textField.setText("");
 				break;
 			
-			case "=":
-				
-				// 次に入力した値をint型に変換後bに代入
-				try {
-					b = Integer.parseInt(textField.getText());
-				} catch (NumberFormatException e6) {
-					textField.setText("数値を入力してください");
-					x=5;
-				}
-				// 先ほど決めたxの値をもとに計算方法を決める
-				switch (x) {
-				case 1:
-					c = a - b;
-					break;
-				case 2:
-					c = a + b;
-					break;
-				case 3:
-					c = a * b;
-					break;
-				case 4:
-					try {
-						c = a / b;
-					} catch (ArithmeticException e1) {
-						textField.setText("０で割れません");
-						x = 5;
-					}
-					break;
-				}
-				// 計算結果をString型に戻す
-				if (x != 5) {
-					d = String.valueOf(c);
-					textField.setText(d);
-				}
-				break;
-				
-			default:	// ACです。
+			case "AC":
 				
 				// 値が全てリセットされるようになる
 				a = 0;
 				b = 0;
-				textField.setText("");
 				break;
+				
+			default:
+
+				outputResult();
+				// brakeではなくreturnすることにより、下行のtextField.setText("");を実行させません。
+				return;
 			}
+
+			/*
+			 * [=]以外の共通処理です。
+			 * textFieldの文字列をクリアします。
+			 */
+			textField.setText("");
+			
 		} catch (NumberFormatException e2) {
 		
 			textField.setText("数値を入力してください");
+		}
+	}
+	
+	/**
+	 * [=]の処理です。
+	 */
+	private void outputResult() {
+		
+		int answerValue = 0;
+		
+		// 次に入力した値をint型に変換後bに代入
+		try {
+			b = Integer.parseInt(textField.getText());
+			
+			// 先ほど決めたxの値をもとに計算方法を決める
+			switch (x) {
+			case 1:
+				answerValue = a - b;
+				break;
+			
+			case 2:
+				answerValue = a + b;
+				break;
+			
+			case 3:
+				answerValue = a * b;
+				break;
+			
+			case 4:
+				answerValue = a / b;
+				break;
+			}
+			
+			String answerText = String.valueOf(answerValue);
+			textField.setText(answerText);
+
+		} catch (NumberFormatException e6) {
+			
+			textField.setText("数値を入力してください");
+//			x = 5;	上行で判定ができたので不要になりました。
+
+		} catch (ArithmeticException e1) {
+			
+			textField.setText("０で割れません");
+//			x = 5;	上行で判定ができたので不要になりました。
 		}
 	}
 }
