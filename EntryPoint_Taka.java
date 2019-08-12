@@ -232,23 +232,22 @@ public class EntryPoint extends JFrame implements ActionListener {
 	private void command(String btnTxt) {
 		
 		try {
+			a = Integer.parseInt(textField.getText());
+
 			switch (btnTxt) {
 			case "*":
-				a = Integer.parseInt(textField.getText());
 				x = 3;
 				break;
 				
 			case "/":
-				a = Integer.parseInt(textField.getText());
 				x = 4;
 				break;
 				
 			case "-":
-				a = Integer.parseInt(textField.getText());
 				x = 1;
+				break;
 			
 			case "+":
-				a = Integer.parseInt(textField.getText());
 				x = 2;
 				break;
 			
